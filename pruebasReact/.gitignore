@@ -1,0 +1,29 @@
+# Dependencias
+node_modules/
+
+# Build de producción
+dist/
+
+# Reportes de cobertura
+coverage/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Variables de entorno
+.env
+.env.local
+.env.production
+
+# Editor / IDE
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
