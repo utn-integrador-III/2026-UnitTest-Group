@@ -1,6 +1,244 @@
 # UnitTest-Group
 UnitTest-React-Python-Kotlin
 
+# Unit Testing Demo en Kotlin
+
+Este proyecto es una demostracion practica de como implementar **unit testing en Kotlin** usando:
+
+- Kotlin/JVM
+- JUnit 5
+- MockK para mocks
+- JaCoCo para cobertura de codigo
+- Gradle Wrapper para ejecutar sin instalar Gradle manualmente
+
+Autor: Kevin Nunez
+
+---
+
+# Estructura del proyecto Kotlin
+
+```
+pruebasKotlin/
+├── build.gradle.kts
+├── settings.gradle.kts
+├── gradlew
+├── gradlew.bat
+└── src/
+    ├── main/kotlin/com/kevinnunez/unittesting/
+    │   ├── Main.kt
+    │   ├── calculator/Calculator.kt
+    │   └── orders/
+    │       ├── DiscountClient.kt
+    │       └── OrderService.kt
+    └── test/kotlin/com/kevinnunez/unittesting/
+        ├── MainTest.kt
+        ├── calculator/CalculatorTest.kt
+        └── orders/OrderServiceTest.kt
+```
+
+---
+
+# Instalacion Kotlin
+
+No es necesario instalar Gradle porque el proyecto incluye Gradle Wrapper.
+
+Solo se necesita Java 17 o superior.
+
+Entrar a la carpeta:
+
+```bash
+cd pruebasKotlin
+```
+
+---
+
+# Codigo del proyecto Kotlin
+
+## Calculator.kt
+
+```kotlin
+object Calculator {
+    fun add(a: Double, b: Double): Double = a + b
+
+    fun divide(a: Double, b: Double): Double {
+        require(b != 0.0) { "No se puede dividir entre cero" }
+        return a / b
+    }
+}
+```
+
+---
+
+## OrderService.kt
+
+```kotlin
+class OrderService(
+    private val discountClient: DiscountClient,
+) {
+    fun calculateTotal(userId: Int, prices: List<Double>): Double {
+        require(prices.isNotEmpty()) { "La orden no puede estar vacia" }
+
+        val subtotal = prices.sum()
+        val discount = discountClient.getDiscount(userId)
+
+        require(discount in 0.0..1.0) { "Descuento invalido" }
+
+        return subtotal * (1 - discount)
+    }
+}
+```
+
+---
+
+# Pruebas unitarias en Kotlin
+
+## CalculatorTest.kt
+
+```kotlin
+@Test
+fun `adds two numbers`() {
+    assertEquals(5.0, Calculator.add(2.0, 3.0))
+}
+
+@Test
+fun `division by zero raises error`() {
+    assertFailsWith<IllegalArgumentException> {
+        Calculator.divide(10.0, 0.0)
+    }
+}
+```
+
+---
+
+## OrderServiceTest.kt
+
+En estas pruebas se usa MockK para simular `DiscountClient`.
+
+```kotlin
+private val discountClient = mockk<DiscountClient>()
+private val service = OrderService(discountClient)
+
+@Test
+fun `calculates total with discount`() {
+    every { discountClient.getDiscount(1) } returns 0.10
+
+    val result = service.calculateTotal(userId = 1, prices = listOf(100.0, 50.0))
+
+    assertEquals(135.0, result, 0.001)
+}
+
+@Test
+fun `calls discount client with user id`() {
+    every { discountClient.getDiscount(5) } returns 0.20
+
+    service.calculateTotal(userId = 5, prices = listOf(100.0))
+
+    verify(exactly = 1) { discountClient.getDiscount(5) }
+}
+```
+
+---
+
+# Las pruebas del proyecto Kotlin
+
+| # | Prueba | Que verifica |
+|---|--------|--------------|
+| 1 | `adds two numbers` | Suma dos numeros correctamente |
+| 2 | `divides two numbers` | Divide dos numeros correctamente |
+| 3 | `division by zero raises error` | Lanza error si se divide entre cero |
+| 4 | `calculates total without discount` | Calcula una orden sin descuento |
+| 5 | `calculates total with discount` | Aplica un descuento simulado con MockK |
+| 6 | `calls discount client with user id` | Verifica que el mock fue llamado con el usuario correcto |
+| 7 | `empty order raises error` | Lanza error si la orden esta vacia |
+| 8 | `invalid discount raises error` | Lanza error si el descuento es invalido |
+| 9 | `default discount client returns zero` | Valida el cliente de descuento por defecto |
+| 10 | `runs command line demo and prints expected output` | Ejecuta el demo principal y revisa la salida |
+
+---
+
+# Ejecutar pruebas Kotlin
+
+En Windows:
+
+```bash
+cd pruebasKotlin
+.\gradlew.bat test
+```
+
+En Mac/Linux:
+
+```bash
+cd pruebasKotlin
+./gradlew test
+```
+
+Resultado esperado:
+
+```
+10 tests, 0 failures, 0 errors
+```
+
+Resultado validado localmente:
+
+```
+Tests: 10, Failures: 0, Errors: 0
+Instruction coverage: 99.32%
+```
+
+---
+
+# Cobertura de codigo Kotlin
+
+Generar reporte de cobertura:
+
+```bash
+.\gradlew.bat jacocoTestReport
+```
+
+Verificar cobertura minima del 80%:
+
+```bash
+.\gradlew.bat jacocoTestCoverageVerification
+```
+
+Ejecutar todo junto:
+
+```bash
+.\gradlew.bat clean check
+```
+
+El reporte HTML queda en:
+
+```
+pruebasKotlin/build/reports/jacoco/test/html/index.html
+```
+
+---
+
+# Conceptos clave en Kotlin
+
+- `@Test`: marca una funcion como prueba unitaria.
+- `assertEquals`: compara el resultado esperado contra el resultado real.
+- `assertFailsWith`: valida que una operacion lance una excepcion.
+- `mockk`: crea una dependencia simulada.
+- `every { ... } returns ...`: define el comportamiento del mock.
+- `verify`: confirma que el mock fue llamado como se esperaba.
+- JaCoCo: mide que porcentaje del codigo fue probado.
+
+---
+
+# Utilidad del codigo Kotlin
+
+Podemos:
+
+1. Ejecutar pruebas unitarias con JUnit 5.
+2. Simular dependencias externas con MockK.
+3. Verificar errores esperados.
+4. Medir cobertura de codigo con JaCoCo.
+5. Comparar el ejemplo de Kotlin con los demos de React y Python.
+
+---
+
 # Demo de Pruebas Unitarias en React 🚀
 
 Demo sencilla para aprender pruebas unitarias (unit testing), simulaciones (mocking) y cobertura de código (code coverage) en React.
